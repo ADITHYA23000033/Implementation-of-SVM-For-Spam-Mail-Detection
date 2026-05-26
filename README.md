@@ -8,83 +8,111 @@ To write a program to implement the SVM For Spam Mail Detection.
 2. Anaconda – Python 3.7 Installation / Jupyter notebook
 
 ## Algorithm
-Step 1: Import the required packages.
-
-Step 2: Import the dataset to operate on.
-
-Step 3: Split the dataset.
-
-Step 4: Predict the required output. 
+1. Import the spam dataset, detect file encoding, and separate message text and labels.
+2. Use CountVectorizer to transform text messages into numerical vectors.
+3. Split the dataset into training and testing sets and train the Support Vector Machine classifier.
+4. Predict spam/ham messages, calculate accuracy score, and generate the classification report.
 
 ## Program:
 ```
-/*
 Program to implement the SVM For Spam Mail Detection..
 Developed by: ADITHYA V
 RegisterNumber: 212223110001
-*/
 ```
-```
-import chardet
-file='/content/spam.csv'
-with open(file,'rb') as rawdata:
-  result = chardet.detect(rawdata.read(100000))
-result
-
-
+```python
 import pandas as pd
-data=pd.read_csv('spam.csv',encoding='Windows-1252')
-
-data.head()
-
-data.info()
-
-data.isnull().sum()
-
-x=data["v1"].values
-y=data["v2"].values
+import chardet
+import matplotlib.pyplot as plt
+import seaborn as sns
 
 from sklearn.model_selection import train_test_split
-x_train,x_test,y_train,y_test=train_test_split(x,y,test_size=0.35,random_state=0)
-
 from sklearn.feature_extraction.text import CountVectorizer
-cv=CountVectorizer()
-
-x_train=cv.fit_transform(x_train)
-x_test=cv.transform(x_test)
-
 from sklearn.svm import SVC
-svc=SVC()
-svc.fit(x_train,y_train)
-y_pred=svc.predict(x_test)
-y_pred
 
-from sklearn import metrics
-accuracy=metrics.accuracy_score(y_test,y_pred)
-accuracy
+from sklearn.metrics import (
+    accuracy_score,
+    classification_report,
+    confusion_matrix
+)
 
-from sklearn.metrics import confusion_matrix, classification_report
-con = confusion_matrix(y_test,y_pred)
-con
-cl=classification_report(y_test,y_pred)
+file = "spam.csv"
 
+with open(file, 'rb') as rawdata:
+    result = chardet.detect(rawdata.read(100000))
+
+data = pd.read_csv(file, encoding=result['encoding'])
+
+print(data.head())
+
+x = data["v2"].values
+y = data["v1"].values
+
+x_train, x_test, y_train, y_test = train_test_split(
+    x,
+    y,
+    test_size=0.2,
+    random_state=42
+)
+
+cv = CountVectorizer()
+
+x_train = cv.fit_transform(x_train)
+x_test = cv.transform(x_test)
+
+svc = SVC()
+
+svc.fit(x_train, y_train)
+
+y_pred = svc.predict(x_test)
+
+print("\nPREDICTED VALUES:\n")
+print(y_pred[:10])
+
+accuracy = accuracy_score(y_test, y_pred)
+
+print("\nACCURACY SCORE:")
+print(accuracy)
+
+report = classification_report(y_test, y_pred)
+
+print("\nCLASSIFICATION REPORT:\n")
+print(report)
+
+cm = confusion_matrix(y_test, y_pred)
+
+print("\nCONFUSION MATRIX:\n")
+print(cm)
+
+plt.figure(figsize=(6,4))
+
+sns.heatmap(
+    cm,
+    annot=True,
+    fmt='d',
+    cmap='Blues',
+    xticklabels=['ham', 'spam'],
+    yticklabels=['ham', 'spam']
+)
+
+plt.xlabel("Predicted Label")
+plt.ylabel("True Label")
+plt.title("Confusion Matrix")
+
+plt.show()
+
+new_message = ["Congratulations! You won a free iPhone"]
+
+new_message_vector = cv.transform(new_message)
+
+prediction = svc.predict(new_message_vector)
+
+print("\nNEW MESSAGE PREDICTION:")
+print(prediction)
 ```
 
 ## Output:
-### head
-![image](https://github.com/user-attachments/assets/d8c17580-4b7e-4723-b185-1fc798e8cbb6)
-
-### Info
-![image](https://github.com/user-attachments/assets/cb1ecf0e-df83-42c2-af20-00fcf1a2b71e)
-
-### isnull
-![image](https://github.com/user-attachments/assets/d9d633f1-aad5-428f-93b1-ad5ec8527c98)
-
-### Accuracy
-![image](https://github.com/user-attachments/assets/f1107507-245a-4edc-93ed-d61241ac8299)
-
-### Confusion matrix and Classification Report
-![image](https://github.com/user-attachments/assets/8230c1cc-32dd-496e-9a31-35de8e22d3b1)
+<img width="904" height="557" alt="Screenshot 2026-05-25 113659" src="https://github.com/user-attachments/assets/00f91233-9b03-4fb9-9f2e-034baee5ba21" />
+<img width="905" height="527" alt="Screenshot 2026-05-25 113710" src="https://github.com/user-attachments/assets/56117dee-4ffc-4343-8ee9-4a228e0e82a3" />
 
 
 
